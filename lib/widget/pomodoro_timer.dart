@@ -43,10 +43,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../styles.dart';
 import 'timer_panel.dart';
+import '../local_notice_service.dart';
 
-const int kWorkDuration = 1500; // production: 25 minutes
-const int kRestDuration = 300; // production: 300 (5 minutes)
-const int kLongRestDuration = 900; // production: 900 (15 minutes)
+const int kWorkDuration = 5; // production: 25 minutes
+const int kRestDuration = 3; // production: 300 (5 minutes)
+const int kLongRestDuration = 4; // production: 900 (15 minutes)
 const int kLongRestInterval = 4; // 4 short rest and then 1 long rest
 
 enum PomodoroState {
@@ -160,12 +161,14 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
       // Discard
       // Next state: beingWork
       // #1
+      LocalNoticeService().cancelAllNotification();
       _endAtWork(false);
     } else if (_state == PomodoroState.beginRest) {
       enterAtRest();
     } else if (_state == PomodoroState.atRest) {
       // Discard
       // Next state: beingWork
+      LocalNoticeService().cancelAllNotification();
       _endAtRest();
     }
   }
@@ -211,6 +214,13 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
 
     // Define the endtime
     _endTime = DateTime.now().millisecondsSinceEpoch + remainTime * 1000;
+    LocalNoticeService().addNotification(
+      'Work Complete',
+      "Let's take some rest",
+      _endTime,
+      sound: 'workend.mp3',
+      channel: 'work-end',
+    );
     _startTimer();
   }
 
@@ -225,7 +235,16 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
       buttonCaption = 'DISCARD';
     });
 
+    // Define the endtime
     _endTime = DateTime.now().millisecondsSinceEpoch + remainTime * 1000;
+
+    LocalNoticeService().addNotification(
+      'Rest Complete',
+      'Let start to work',
+      _endTime,
+      sound: 'restend.mp3',
+      channel: 'rest-end',
+    );
     _startTimer();
   }
 

@@ -91,8 +91,11 @@ class LocalNoticeService {
         : DarwinNotificationDetails(presentSound: true, sound: sound);
 
     final soundFile = sound.replaceAll('.mp3', '');
+    print('soundFile = $soundFile');
     final notificationSound =
         sound == '' ? null : RawResourceAndroidNotificationSound(soundFile);
+
+    print('notificationSound = $notificationSound');
 
     final androidDetail = AndroidNotificationDetails(
         channel, // channel Id
